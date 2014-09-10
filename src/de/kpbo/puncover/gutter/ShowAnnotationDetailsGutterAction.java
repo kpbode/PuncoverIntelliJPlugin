@@ -2,10 +2,8 @@ package de.kpbo.puncover.gutter;
 
 import com.intellij.openapi.editor.EditorGutterAction;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.content.Content;
 import de.kpbo.puncover.PuncoverPlugin;
 import de.kpbo.puncover.model.CodeAnnotation;
@@ -15,7 +13,6 @@ import de.kpbo.puncover.ui.ReportPane;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.util.Map;
 
 /**
  * Created by karl on 07/09/14.

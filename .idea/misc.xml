@@ -3,29 +3,6 @@
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
-  <component name="ProjectInspectionProfilesVisibleTreeState">
-    <entry key="Project Default">
-      <profile-state>
-        <expanded-state>
-          <State>
-            <id />
-          </State>
-          <State>
-            <id>Android Lint</id>
-          </State>
-          <State>
-            <id>Internationalization issues</id>
-          </State>
-          <State>
-            <id>Java language level migration aids</id>
-          </State>
-          <State>
-            <id>Plugin DevKit</id>
-          </State>
-        </expanded-state>
-      </profile-state>
-    </entry>
-  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_1_6" assert-keyword="true" jdk-15="true" project-jdk-name="IDEA IC-135.1230" project-jdk-type="IDEA JDK">
     <output url="file://$PROJECT_DIR$/out" />
   </component>

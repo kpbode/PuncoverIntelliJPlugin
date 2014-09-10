@@ -12,6 +12,9 @@ import com.intellij.openapi.editor.event.EditorFactoryListener;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileAdapter;
+import com.intellij.openapi.vfs.VirtualFileEvent;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowAnchor;
 import com.intellij.openapi.wm.ToolWindowManager;
@@ -19,17 +22,15 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import de.kpbo.puncover.gutter.CodeTextAnnotationGutterProvider;
 import de.kpbo.puncover.gutter.ShowAnnotationDetailsGutterAction;
-import de.kpbo.puncover.model.CodeAnnotation;
 import de.kpbo.puncover.model.CodeFile;
 import de.kpbo.puncover.model.CodeStatistics;
 import de.kpbo.puncover.ui.ReportPane;
 import de.kpbo.puncover.utils.VirtualFileUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.nio.file.*;
 import java.util.HashMap;
-import java.util.Map;
+
+//import java.nio.file.*;
 
 /**
  * Created by karl on 07/09/14.
@@ -41,6 +42,7 @@ public class PuncoverPlugin implements ProjectComponent, EditorFactoryListener {
     private final Project project;
     private final HashMap<String, Editor> editors;
     private CodeStatistics statistics;
+    private VirtualFileAdapter virtualFileAdapter;
 
     public PuncoverPlugin(Project project) {
         this.project = project;
@@ -80,80 +82,72 @@ public class PuncoverPlugin implements ProjectComponent, EditorFactoryListener {
         this.statistics = statistics;
     }
 
+    private void rereadCodeStatistics() {
+
+        for (Editor editor : editors.values()) {
+            editor.getGutter().closeAllAnnotations();
+        }
+
+        readCodeStatisticsFromProjectFile();
+
+        for (Editor editor : editors.values()) {
+
+            setupGutterAnnotationsForEditor(editor);
+
+        }
+
+    }
+
     private void createFileWatcher() {
 
-        ApplicationManager.getApplication().executeOnPooledThread(new Runnable() {
-            @Override
-            public void run() {
+        // TODO: currently it seems as if the FileAdapter only calls back when the IDE comes into foreground again. 
 
-                final VirtualFile jsonFile = project.getBaseDir().findChild(CodeStatistics.FILE_NAME);
-                if (jsonFile == null) {
-                    return;
-                }
+        this.virtualFileAdapter = new VirtualFileAdapter() {
 
-                try {
+            private void handleFileEvent(VirtualFileEvent event) {
 
-                    final Path path = FileSystems.getDefault().getPath(project.getBasePath());
-                    final WatchService watchService = FileSystems.getDefault().newWatchService();
-                    final WatchKey watchKey = path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+                if (CodeStatistics.FILE_NAME.equals(event.getFileName())) {
 
-                    while (true) {
-
-                        final WatchKey key;
-                        try {
-                            key = watchService.take();
-
-                            for (WatchEvent<?> event : watchKey.pollEvents()) {
-
-                                final Path p = (Path) event.context();
-                                if (p.endsWith(CodeStatistics.FILE_NAME)) {
-
-                                    ApplicationManager.getApplication().invokeLater(new Runnable() {
-
-                                        @Override
-                                        public void run() {
-
-                                            for (Editor editor : editors.values()) {
-                                                editor.getGutter().closeAllAnnotations();
-                                            }
-
-                                            readCodeStatisticsFromProjectFile();
-
-                                            for (Editor editor : editors.values()) {
-
-                                                setupGutterAnnotationsForEditor(editor);
-
-                                            }
-
-
-                                        }
-                                    });
-
-
-                                }
-                            }
-
-                            key.reset();
-
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
+                    ApplicationManager.getApplication().invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            rereadCodeStatistics();
                         }
+                    });
 
-
-                    }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
 
             }
-        });
 
+            @Override
+            public void fileCreated(@NotNull VirtualFileEvent event) {
+                super.fileCreated(event);
+
+                handleFileEvent(event);
+            }
+
+            @Override
+            public void contentsChanged(@NotNull VirtualFileEvent event) {
+                super.contentsChanged(event);
+
+                handleFileEvent(event);
+            }
+        };
+
+        VirtualFileManager.getInstance().addVirtualFileListener(virtualFileAdapter);
     }
 
     public void projectClosed() {
 
         unregisterToolWindow();
+
+        removeFileWatcher();
+    }
+
+    private void removeFileWatcher() {
+
+        VirtualFileManager.getInstance().removeVirtualFileListener(virtualFileAdapter);
+
     }
 
     private void registerToolWindow() {
@@ -191,6 +185,11 @@ public class PuncoverPlugin implements ProjectComponent, EditorFactoryListener {
     }
 
     private VirtualFile setupGutterAnnotationsForEditor(Editor editor) {
+
+        if (statistics == null) {
+            return null;
+        }
+
         VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
 
         if (file == null) {

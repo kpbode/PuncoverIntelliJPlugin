@@ -1,18 +1,14 @@
 <idea-plugin version="2">
   <id>de.kpbo.PuncoverPlugin</id>
   <name>Puncover Plugin</name>
-  <version>1.0</version>
-  <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+  <version>0.0.1</version>
+  <vendor email="mail@kpbo.de" url="http://kpbo.de">Karl Bode</vendor>
 
   <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <em>most HTML tags may be used</em>
+      The Plugin displays messages in the editor as they are contained in a .gutter.json file which is placed in the root directory of the current project.
     ]]></description>
 
-  <change-notes><![CDATA[
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>
-    ]]>
+  <change-notes>
   </change-notes>
 
   <!-- please see http://confluence.jetbrains.com/display/IDEADEV/Build+Number+Ranges for description -->

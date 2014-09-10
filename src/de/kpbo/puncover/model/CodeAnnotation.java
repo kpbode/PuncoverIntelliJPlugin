@@ -56,7 +56,12 @@ public class CodeAnnotation {
 
     public String getHTMLPath(Project project) {
 
-        VirtualFile htmlBaseDirectory = project.getBaseDir().findChild(".gutter.html");
+        VirtualFile buildDirectory = project.getBaseDir().findChild("build");
+        if (buildDirectory == null || !buildDirectory.isDirectory()) {
+            return null;
+        }
+
+        VirtualFile htmlBaseDirectory = buildDirectory.findChild("puncover");
         if (htmlBaseDirectory == null || !htmlBaseDirectory.isDirectory()) {
             System.err.println("not a directory");
             return null;
