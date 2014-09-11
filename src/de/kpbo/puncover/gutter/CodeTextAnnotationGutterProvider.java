@@ -30,6 +30,10 @@ public class CodeTextAnnotationGutterProvider implements TextAnnotationGutterPro
     @Override
     public String getLineText(int i, Editor editor) {
 
+        if (file == null) {
+            return null;
+        }
+
         CodeAnnotation annotation = file.getAnnotationAtLineNumber(i);
         if (annotation == null) {
             return null;
@@ -41,6 +45,10 @@ public class CodeTextAnnotationGutterProvider implements TextAnnotationGutterPro
     @Nullable
     @Override
     public String getToolTip(int i, Editor editor) {
+
+        if (file == null) {
+            return null;
+        }
 
         CodeAnnotation annotation = file.getAnnotationAtLineNumber(i);
         if (annotation == null) {

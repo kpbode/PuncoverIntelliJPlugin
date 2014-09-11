@@ -100,7 +100,7 @@ public class PuncoverPlugin implements ProjectComponent, EditorFactoryListener {
 
     private void createFileWatcher() {
 
-        // TODO: currently it seems as if the FileAdapter only calls back when the IDE comes into foreground again. 
+        // TODO: currently it seems as if the FileAdapter only calls back when the IDE comes into foreground again.
 
         this.virtualFileAdapter = new VirtualFileAdapter() {
 
